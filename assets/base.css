@@ -1,0 +1,121 @@
+/* assets/base.css */
+
+/* Set a slightly off-white background so the white cards pop */
+body {
+    background-color: #f4f6f9; 
+}
+
+/* Modern styling for all cards */
+.custom-card {
+    border-radius: 12px;
+    background: #ffffff;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Slight lift effect when hovering over the input cards */
+.custom-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Give the header a nice gradient to fit the Hydrogen/Tech theme */
+.custom-header {
+    background: linear-gradient(135deg, #2C3E50 0%, #18BC9C 100%);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+/* Make slider labels a bit bolder for readability */
+.rc-slider-mark-text {
+    font-weight: 500;
+}
+
+/* Add some breathing room to the inputs */
+.card-body h4 {
+    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #2C3E50;
+}
+
+
+/* Customizing the Ag-Grid Alpine theme to match Bootstrap FLATLY */
+.custom-grid.ag-theme-alpine {
+    /* Inherit the beautiful sans-serif font from the Bootstrap theme */
+    --ag-font-family: inherit;
+    --ag-font-size: 14px;
+    
+    /* Clean up the headers using Flatly's primary dark blue */
+    --ag-header-background-color: #ffffff;
+    --ag-header-foreground-color: #2C3E50;
+    --ag-header-column-separator-display: none; /* Removes harsh vertical lines */
+    
+    /* Soften the row borders and hover effects */
+    --ag-borders: none; /* Removes the thick outer box */
+    --ag-row-border-color: #ecf0f1;
+    --ag-row-hover-color: #f8f9fa;
+    
+    /* Use Flatly's success green (#18BC9C) for selected rows */
+    --ag-selected-row-background-color: rgba(24, 188, 156, 0.15); 
+    
+    /* Give the whole table a modern rounded edge */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Make the header text look more like a modern web app */
+.custom-grid .ag-header-cell-label {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+/* =========================================
+   DASH NATIVE SPLASH SCREEN HIJACK
+   ========================================= */
+
+._dash-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #2C3E50; /* Flatly Primary Dark */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: transparent; /* Hides the default tiny "Loading..." text */
+}
+
+._dash-loading::before {
+    content: "";
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top: 4px solid #18BC9C; /* Flatly Success Green */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 24px;
+    display: block;
+}
+
+._dash-loading::after {
+    content: "LOOP H2 | Initializing Optimization Engine...";
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Spinner Animation Logic */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
