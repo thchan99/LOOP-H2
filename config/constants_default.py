@@ -14,8 +14,8 @@ Unit conventions:
 """
 
 # Demand Sheet Param
-DEMAND_SHEET_NUM = 1
-DEMAND_DIST_CENTER_SHEET_NUM = 5
+DEMAND_SHEET_NUM = 0
+DEMAND_DIST_CENTER_SHEET_NUM = 2
 
 # Physical conversion constants
 SCF_TO_NM3 = 0.0283168      # standard cubic feet to normal cubic meters (Nm3/scf)

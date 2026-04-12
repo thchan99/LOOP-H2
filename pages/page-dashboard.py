@@ -25,10 +25,8 @@ opt_model = Model()
 
 ### INPUTS ###
 demand_segment_options = [
-    {"label": "All Candidate Stops", "value": 0},
-    {"label": "Truck Stops Only", "value": 1},
-    {"label": "State-Owned + RaceTrac", "value": 2},
-    {"label": "RaceTrac + Weigh Stations", "value": 3},
+    {"label": "All Truck Stops", "value": 0},
+    {"label": "RaceTrac Only", "value": 1},
 ]
 hydrogenDemand = dbc.Card(
     className="custom-card shadow-sm border-2 h-100",
@@ -43,7 +41,7 @@ hydrogenDemand = dbc.Card(
             dcc.Dropdown(
                 id="demand-segment-select",
                 options=demand_segment_options,
-                value=1,
+                value=0,
                 clearable=False,
                 className="mb-3 shadow-sm",
             ),
@@ -651,7 +649,7 @@ def generate_dashboard_results(n, demand_sheet, fleetconv, dist_az, dist_wm, dis
 
     # default if user hasn't changed inputs 
     user_params = {
-        "demand_sheet_num": 1 if demand_sheet is None else demand_sheet,
+        "demand_sheet_num": 0 if demand_sheet is None else demand_sheet,
         "fleetconv": 3.5 if fleetconv is None else fleetconv,
         "distcenter_az": 10 if dist_az is None else dist_az,
         "distcenter_wm": 10 if dist_wm is None else dist_wm,
@@ -724,7 +722,7 @@ def generate_dashboard_results(n, demand_sheet, fleetconv, dist_az, dist_wm, dis
     graph_perct = user_params.get("graphene_percent") / 100.0
 
     ### SUPPLY-DEMAND OUTLOOK ###
-    fig_sd, sd_html = hf.build_supply_demand_card(df_prod, df_demand)
+    fig_sd, sd_html = hf.build_supply_demand_card(df_prod, df_demand, summary)
 
     ### FUEL TRANSITION FORECAST ###
     fig_forecast, forecast_html, math_fuel = hf.build_fuel_forecast_card(
