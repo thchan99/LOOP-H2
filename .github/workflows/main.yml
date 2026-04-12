@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.13'
           architecture: 'x64'
-          environment-file: environment.yml
+          environment-file: env-ubuntu.yml
           auto-activate-base: false
 
       - name: Run Makefile files
