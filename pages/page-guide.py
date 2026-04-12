@@ -10,7 +10,7 @@ resource_links = dbc.Card([
         html.H5([html.I(className="fa-brands fa-github me-2"), "Source Code & Repository"], className="card-title fw-bold text-dark mb-3"),
         html.P("The underlying MILP optimization model, Dash application framework, and documentation are available on GitHub.", className="text-muted small"),
         dbc.Button([html.I(className="fa-brands fa-github me-2"), "View on GitHub"], 
-                   href="https://github.gatech.edu/tchan89/SGC04_LOOPH2",
+                   href="https://github.com/thchan99/LOOP-H2",
                    target="_blank", 
                    color="dark", 
                    className="w-100 mb-2 shadow-sm"),
