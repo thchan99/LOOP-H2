@@ -97,4 +97,4 @@ className="dbc custom-bg min-vh-100 d-flex flex-column"
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
