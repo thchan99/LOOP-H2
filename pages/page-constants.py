@@ -136,8 +136,9 @@ layout = dbc.Container([
             dbc.Alert([
                 html.I(className="fa-solid fa-triangle-exclamation me-2 fs-5"),
                 html.Strong("WARNING: ", className="p-2"),
-                "Modifying these global constants will permanently rewrite the underlying Python configuration files. ",
-                "Only adjust these parameters if you fully understand their impact on the MILP solver bounds and the system economics."
+                "Modifying these global constants will rewrite the underlying Python configuration files. ",
+                "Only adjust these parameters if you fully understand their impact on the MILP solver bounds and the system economics. ",
+                "You may restore the default configuration at any time by clicking the button at the bottom of the page."
             ], color="danger", className="shadow-sm mb-4 mt-3 border-2 border-danger d-flex align-items-center")
         ], width=12)
     ]),

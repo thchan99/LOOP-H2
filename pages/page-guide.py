@@ -15,7 +15,7 @@ resource_links = dbc.Card([
                    color="dark", 
                    className="w-100 mb-2 shadow-sm"),
         html.Hr(),
-        html.P("Developed by the ASDL 2025-26 System of Systems Grand Challenge Team.", className="text-muted small text-center mb-0")
+        html.P("Developed by the Aerospace Systems Design Laboratory 2025-26 System of Systems Grand Challenge Team.", className="text-muted small text-center mb-0")
     ])
 ], className="shadow-sm border-0 h-100 custom-card")
 

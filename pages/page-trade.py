@@ -35,11 +35,11 @@ layout = dbc.Container([
     html.Div(id="comparison-results-container", style={"display": "none"}, children=[
         dbc.Row([
             dbc.Col([
-                html.H5("Scenario A: Network", className="text-center fw-bold text-primary mb-2"),
+                html.H5(id="map-title-a", className="text-center fw-bold text-primary mb-2"),
                 html.Div(id="map-container-a", className="shadow-sm border border-2 border-primary rounded mb-4")
             ], xs=12, lg=6),
             dbc.Col([
-                html.H5("Scenario B: Network", className="text-center fw-bold text-success mb-2"),
+                html.H5(id="map-title-b", className="text-center fw-bold text-success mb-2"),
                 html.Div(id="map-container-b", className="shadow-sm border border-2 border-success rounded mb-4")
             ], xs=12, lg=6),
         ]),
@@ -49,7 +49,7 @@ layout = dbc.Container([
         
         dbc.Row([
             dbc.Col(id="col-metrics-a", xs=12, lg=5, className="mb-3 mb-lg-0"),
-            dbc.Col(id="col-deltas", xs=12, lg=2, className="bg-light border rounded shadow-sm py-2 mb-3 mb-lg-0"),
+            dbc.Col(id="col-deltas", xs=12, lg=2, className="bg-light border rounded shadow-sm pb-2 mb-3 mb-lg-0"),
             dbc.Col(id="col-metrics-b", xs=12, lg=5),
         ])
     ])
@@ -68,6 +68,8 @@ def populate_compare_dropdowns(store_data):
 
 @callback(
     Output("comparison-results-container", "style"),
+    Output("map-title-a", "children"),
+    Output("map-title-b", "children"),
     Output("map-container-a", "children"),
     Output("map-container-b", "children"),
     Output("col-metrics-a", "children"),
@@ -84,6 +86,9 @@ def load_trade_study(name_a, name_b, store_data):
 
     map_a, map_b, kpi_a, kpi_b, deltas = "", "", "", "", ""
     sum_a, sum_b = None, None
+
+    title_a = f"Scenario A: {name_a}" if name_a else "Scenario A"
+    title_b = f"Scenario B: {name_b}" if name_b else "Scenario B"
 
     # Helper function to wrap layers in a Map context
     def build_trade_map(layers, map_id):
@@ -117,16 +122,16 @@ def load_trade_study(name_a, name_b, store_data):
 
     # KPI Definitions
     kpi_defs = [
-        {"id": "active_sites", "label": "Active Facilities", "icon": "fa-industry", "fmt": "{:,.0f}", "dir": 1},
-        {"id": "built_demand", "label": "Total H2 Demand", "icon": "fa-gas-pump", "fmt": "{:,.0f} kg/day", "dir": 1},
-        {"id": "built_capacity", "label": "Total H2 Supply", "icon": "fa-bolt", "fmt": "{:,.0f} kg/day", "dir": 1},
-        {"id": "graphene", "label": "Graphene Produced", "icon": "fa-cubes", "fmt": "{:,.0f} kg/day", "dir": 1},
-        {"id": "utilization", "label": "Network Utilization", "icon": "fa-gauge-high", "fmt": "{:,.1f}%", "dir": -1},
-        {"id": "unit_opex", "label": "Unit OpEx ($/kg)", "icon": "fa-scale-unbalanced", "fmt": "${:,.2f} /kg", "dir": -1},
-        {"id": "capex", "label": "Total Capital Exp.", "icon": "fa-money-bill-transfer", "fmt": "${:,.0f}", "dir": -1},
-        {"id": "opex", "label": "Annual Operating Exp.", "icon": "fa-money-bill-trend-up", "fmt": "${:,.0f}", "dir": -1},
         {"id": "profit", "label": "Net Annual Cashflow", "icon": "fa-chart-line", "fmt": "${:,.0f}", "dir": 1},
         {"id": "payback", "label": "Payback Period", "icon": "fa-clock", "fmt": "{:,.1f} yrs", "dir": -1},
+        {"id": "built_capacity", "label": "Total H2 Supply", "icon": "fa-bolt", "fmt": "{:,.0f} kg/day", "dir": 1},
+        {"id": "built_demand", "label": "Total H2 Demand", "icon": "fa-gas-pump", "fmt": "{:,.0f} kg/day", "dir": 1},
+        {"id": "active_sites", "label": "Active Facilities", "icon": "fa-industry", "fmt": "{:,.0f}", "dir": 1},
+        {"id": "utilization", "label": "Network Utilization", "icon": "fa-gauge-high", "fmt": "{:,.1f}%", "dir": -1},
+        {"id": "graphene", "label": "Graphene Produced", "icon": "fa-cubes", "fmt": "{:,.0f} kg/day", "dir": 1},
+        {"id": "capex", "label": "Total Capital Exp.", "icon": "fa-money-bill-transfer", "fmt": "${:,.0f}", "dir": -1},
+        {"id": "opex", "label": "Annual Operating Exp.", "icon": "fa-money-bill-trend-up", "fmt": "${:,.0f}", "dir": -1},
+        {"id": "unit_opex", "label": "Unit OpEx ($/kg)", "icon": "fa-scale-unbalanced", "fmt": "${:,.2f} /kg", "dir": -1},
     ]
 
     def extract_metrics(summary, df_demand):
@@ -150,30 +155,31 @@ def load_trade_study(name_a, name_b, store_data):
         
         return {
             "active_sites": summary.get("n_prod", summary.get("active_sites", 0)), 
+            "utilization": utilization,
+            "profit": yearly_net, 
+            "payback": payback,
             "built_demand": total_demand,
             "built_capacity": total_supply,
             "graphene": graphene_produced,
-            "utilization": utilization,
-            "unit_opex": unit_opex,
             "capex": capex,
             "opex": opex,
-            "profit": yearly_net, 
-            "payback": payback
+            "unit_opex": unit_opex,
         }
 
-    def build_kpi_column(metrics, color_class):
-        items = []
+    def build_kpi_column(metrics, color_class, title):
+        items = [html.H5(title, className=f"text-center fw-bold mb-3 {color_class} pt-2")]
+        
         for d in kpi_defs:
             val = metrics.get(d["id"], 0)
             val_str = "Never" if val == float('inf') else d["fmt"].format(val)
             items.append(
                 html.Div([
-                    html.I(className=f"fa-solid {d['icon']} {color_class} me-2 fs-5"),
+                    html.I(className=f"fa-solid {d['icon']} {color_class} me-2 fs-4"),
                     html.Div([
                         html.Span(d["label"], className="text-muted fw-semibold small d-block"),
-                        html.Span(val_str, className="fw-bold fs-5")
+                        html.Span(val_str, className="fw-bold fs-3")
                     ], className="text-center")
-                ], className="d-flex align-items-center justify-content-center mb-3 p-2 border rounded shadow-sm bg-white") # <-- Centers the entire block
+                ], className="d-flex align-items-center justify-content-center mb-3 p-2 border rounded shadow-sm bg-white", style={"height": "85px"})
             )
         return items
 
@@ -187,7 +193,7 @@ def load_trade_study(name_a, name_b, store_data):
             sum_a = res_a["summary"]
             
             map_a = build_trade_map(generate_map(df_prod_a, df_dem_a, df_ship_a, render_token="static-a"), "trade-map-a")
-            kpi_a = build_kpi_column(extract_metrics(sum_a, df_dem_a), "text-primary")
+            kpi_a = build_kpi_column(extract_metrics(sum_a, df_dem_a), "text-primary", name_a)
         else:
             map_a = html.P(f"Error: Scenario '{name_a}' missing data.", className="text-danger")
 
@@ -201,11 +207,11 @@ def load_trade_study(name_a, name_b, store_data):
             sum_b = res_b["summary"]
             
             map_b = build_trade_map(generate_map(df_prod_b, df_dem_b, df_ship_b, render_token="static-b"), "trade-map-b")
-            kpi_b = build_kpi_column(extract_metrics(sum_b, df_dem_b), "text-success")
+            kpi_b = build_kpi_column(extract_metrics(sum_b, df_dem_b), "text-success", name_b)
         else:
             map_b = html.P(f"Error: Scenario '{name_b}' missing data.", className="text-danger")
 
-    # Calculate Visual Deltas
+   # Calculate Visual Deltas
     if sum_a and sum_b:
         m_a = extract_metrics(sum_a, df_dem_a)
         m_b = extract_metrics(sum_b, df_dem_b)
@@ -216,12 +222,25 @@ def load_trade_study(name_a, name_b, store_data):
             v_b = m_b.get(d["id"], 0)
             diff = v_b - v_a
             
-            if v_a == float('inf') or v_b == float('inf') or diff == 0:
-                diff_str = "0" if diff == 0 else "N/A"
+            # Format both the absolute difference and a true zero using the KPI's specific format
+            formatted_diff = d["fmt"].format(abs(diff))
+            formatted_zero = d["fmt"].format(0)
+            
+            if v_a == float('inf') or v_b == float('inf') or formatted_diff == formatted_zero:
+                diff_str = "0" if formatted_diff == formatted_zero else "N/A"
+                pct_str = "" 
                 icon = "fa-minus"
                 color = "text-muted"
             else:
-                diff_str = d["fmt"].format(abs(diff))
+                diff_str = formatted_diff
+                
+                # Safely calculate percentage change (avoids ZeroDivisionError)
+                if v_a != 0:
+                    pct = (abs(diff) / abs(v_a)) * 100
+                    pct_str = f"({pct:.1f}%)"
+                else:
+                    pct_str = "" 
+                    
                 if diff > 0:
                     diff_str = "+" + diff_str
                     icon = "fa-arrow-up"
@@ -233,10 +252,16 @@ def load_trade_study(name_a, name_b, store_data):
                     
             delta_items.append(
                 html.Div([
-                    html.I(className=f"fa-solid {icon} {color} me-1"),
-                    html.Span(diff_str, className=f"fw-bold {color} fs-6")
-                ], className="d-flex align-items-center justify-content-center mb-3 p-2 bg-white border rounded shadow-sm", style={"height": "58px"})
+                    
+                    html.Div([
+                        html.I(className=f"fa-solid {icon} {color} me-1"),
+                        html.Span(diff_str, className=f"fw-bold {color} fs-5"),
+                    ], className="d-flex align-items-center justify-content-center"),
+                    
+                    html.Div(pct_str, className=f"{color} small text-center lh-1 mt-1") if pct_str else ""
+                    
+                ], className="d-flex flex-column justify-content-center mb-3 p-1 bg-white border rounded shadow-sm", style={"height": "85px"})
             )
         deltas = delta_items
 
-    return {"display": "block"}, map_a, map_b, kpi_a, kpi_b, deltas
+    return {"display": "block"}, title_a, title_b, map_a, map_b, kpi_a, kpi_b, deltas

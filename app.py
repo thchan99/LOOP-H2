@@ -15,6 +15,7 @@ external_stylesheets = [
 
 app = Dash(
     __name__,
+    # requests_pathname_prefix='/SGC04_LOOPH2/',
     use_pages=True,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1.0"}],
     external_stylesheets = external_stylesheets,
@@ -22,7 +23,7 @@ app = Dash(
 
 app.title = "LOOP H2"
 app.description = "An interactive dashboard for decision-making tools on Hydrogen Transportation Infrastructure for the State of Georgia."
-server = app.server
+
 ### APP LAYOUT ###
 
 # Main Navigation Bar

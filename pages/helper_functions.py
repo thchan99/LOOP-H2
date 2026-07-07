@@ -318,8 +318,8 @@ def build_supply_demand_card(df_prod, df_demand, summary):
     sd_html = html.Div([
         html.Div([
             html.H6(f"Total H2 Supply: {total_supply:,.0f} kg/day", className="fw-bold text-success mb-1"),
-            html.H6(f"Total H2 Demand: {total_demand:,.0f} kg/day", className="fw-bold text-primary mb-1"),
-            html.H6(f"Graphene Produced: {graphene_produced:,.0f} kg/day", className="fw-bold text-primary mb-1"),
+            html.H6(f"Total H2 Demand: {total_demand:,.0f} kg/day", className="fw-bold text-warning mb-1"),
+            html.H6(f"Graphene Produced: {graphene_produced:,.0f} kg/day", className="fw-bold text-info mb-1"),
             html.H6(f"Network Utilization: {utilization:,.1f}%", className="fw-bold text-primary mb-3"),
         ], className="border-bottom pb-2 mb-2"),
         dict_to_html("Supply Breakdown", supply_dict),
@@ -389,16 +389,16 @@ def build_fuel_forecast_card(df_prod, df_demand, tech_pen, fleet_conv, az_conv, 
         records.append({
             "Year": target_year,
             "Conversion (%)": min(100.0, total_conversion),
-            "Imported Diesel": remaining_fossil,
-            "Hydrogen Demand": total_h2_demand,
+            "Estimated Imported Diesel": remaining_fossil,
+            "Future Hydrogen Demand": total_h2_demand,
             "Local H2 Capacity": max_supply
         })
 
     df_forecast = pd.DataFrame(records)
 
     # Generate Figure
-    fig_forecast = px.area(df_forecast, x="Year", y=["Hydrogen Demand", "Imported Diesel"],
-                  color_discrete_map={"Imported Diesel": "#6c757d", "Hydrogen Demand": "#007bff"},
+    fig_forecast = px.area(df_forecast, x="Year", y=["Future Hydrogen Demand", "Estimated Imported Diesel"],
+                  color_discrete_map={"Estimated Imported Diesel": "#6c757d", "Future Hydrogen Demand": "#007bff"},
                   template="plotly_white", labels={"variable": ""})
     
     fig_forecast.add_scatter(x=df_forecast["Year"], y=df_forecast["Local H2 Capacity"],
@@ -410,10 +410,11 @@ def build_fuel_forecast_card(df_prod, df_demand, tech_pen, fleet_conv, az_conv, 
     fig_forecast.update_xaxes(range=[current_year, current_year + forecast_yrs], tickformat="d")
 
     # Capacity Breach Detection
-    deficit_df = df_forecast[df_forecast["Hydrogen Demand"] > df_forecast["Local H2 Capacity"]]
+    deficit_df = df_forecast[df_forecast["Future Hydrogen Demand"] > df_forecast["Local H2 Capacity"]]
+    is_breached = not deficit_df.empty
     limit_text = " Local supply is sufficient for the entire forecast window."
     
-    if not deficit_df.empty:
+    if is_breached:
         limit_year = int(deficit_df.iloc[0]["Year"])
         fig_forecast.add_vline(
             x=limit_year, line_dash="solid", line_color="#dc3545", 
@@ -421,49 +422,55 @@ def build_fuel_forecast_card(df_prod, df_demand, tech_pen, fleet_conv, az_conv, 
         )
         limit_text = f" Local supply limit will be breached in {limit_year}."
 
-    zero_emission_df = df_forecast[df_forecast["Imported Diesel"] <= 0]
+    zero_emission_df = df_forecast[df_forecast["Estimated Imported Diesel"] <= 0]
     if not zero_emission_df.empty:
         zero_year = int(zero_emission_df.iloc[0]["Year"])
-        fig_forecast.add_vline(
-            x=zero_year, 
-            line_dash="solid", 
-            line_color="#28a745",
-            annotation_text="100% Phase-out Reached", 
-            annotation_position="top left"
-        )
+        # Only draw the success phase-out line if the local capacity isn't breached first
+        if not is_breached or zero_year <= limit_year:
+            fig_forecast.add_vline(
+                x=zero_year, 
+                line_dash="solid", 
+                line_color="#28a745",
+                annotation_text="100% Est. Phase-out", 
+                annotation_position="top left"
+            )
 
     # Math Equations
-    math_fuel = textwrap.dedent(f"""
+    math_fuel = textwrap.dedent("""
     **Multi-Sector Transition Model:**
     
     $$F_{{rem}}(t) = D_{{max}} - (H_2(t) \\cdot R_{{eq}})$$
     
     $$Limit: H_2(t) \\le S_{{max}}$$
 
-    * $D_{{max}}$: Base Diesel Demand ({max_theoretical_demand:,.0f} kg)
+    * $D_{{max}}$: Base Diesel Demand
     * $H_2(t)$: Network Hydrogen Deployed
-    * $R_{{eq}}$: Energy/Mass Equivalence Ratio ({mass_ratio}:1)
-    * $S_{{max}}$: Local H2 Capacity ({max_supply:,.0f} kg)
+    * $R_{{eq}}$: Energy/Mass Equivalence Ratio
+    * $S_{{max}}$: Local H2 Capacity
     """)
 
     # Summary Banner
-    final_year_rem = df_forecast.iloc[-1]["Imported Diesel"]
+    final_year_rem = df_forecast.iloc[-1]["Estimated Imported Diesel"]
     final_conv = df_forecast.iloc[-1]["Conversion (%)"]
-    is_breached = not deficit_df.empty
 
-    if final_conv >= 100:
+    # Evaluated hierarchically: If it's breached, it fails regardless of the math.
+    if is_breached:
+        alert_class = "alert alert-warning p-2 mt-2 fs-6"
+        status_header = "Network Constrained: "
+        status_body = "Estimated hydrogen demand exceeds local supply. Diesel phase-out cannot be completed without infrastructure expansion."
+    elif final_conv >= 100:
         alert_class = "alert alert-success p-2 mt-2 fs-6"
-        status_header = "Zero Imported iesel: "
-        status_body = f"100% network conversion reached within the {forecast_yrs}-year window."
+        status_header = "Zero Estimated Diesel Imports: "
+        status_body = f"100% estimated network conversion reached within the {forecast_yrs}-year window."
     else:
         alert_class = "alert alert-info p-2 mt-2 fs-6"
-        status_header = "Partial Reduction: "
-        status_body = f"Network conversion reaches {final_conv:.0f}% in {forecast_yrs} years. Diesel drops to {final_year_rem:,.0f} kg/day."
+        status_header = "Partial Phase-Out: "
+        status_body = f"Estimated conversion reaches {final_conv:.0f}% in {forecast_yrs} years. Est. diesel imports drop to {final_year_rem:,.0f} kg/day."
 
     forecast_html = html.Div([
-        html.Span(status_header, className="fw-bold text-light"),
+        html.Span(status_header, className="fw-bold"),
         status_body,
-        html.Span(limit_text, className="fw-bold text-warning" if is_breached else "fw-bold text-success")
+        html.Span(limit_text, className="fw-bold text-danger" if is_breached else "fw-bold text-success")
     ], className=alert_class)
 
     return fig_forecast, forecast_html, math_fuel
@@ -473,7 +480,7 @@ def build_roi_card(summary, forecast_years):
     current_year = datetime.now().year
     total_cap = summary.get("capex_term", 0)
     total_rev = summary.get("total_revenue", 0)
-    total_op = summary.get("opex_term", 0) + summary.get("transport_term", 0)
+    total_op = summary.get("opex_term", 0)
     yearly_net = total_rev - total_op
 
     roi_records = [{"Year": current_year + i, "Cumulative Cash Flow ($)": -total_cap + (yearly_net * i)} 
@@ -495,7 +502,7 @@ def build_roi_card(summary, forecast_years):
     roi_html = html.Div([
         html.Div([
             html.H6(f"Initial CapEx: {format_currency_compact(total_cap)}", className="fw-bold text-danger mb-1"),
-            html.H6(f"Annual Net: {format_currency_compact(yearly_net)} / yr", className="fw-bold text-primary mb-2"),
+            html.H6(f"Net Annual Cashflow: {format_currency_compact(yearly_net)} / yr", className="fw-bold text-primary mb-2"),
         ], className="border-bottom pb-2 mb-2"),
         status
     ])
@@ -557,6 +564,8 @@ def build_revenue_card(df_prod, df_demand, df_ship2, summary, h2_p, graph_p, gra
     
     total_rev = summary.get("total_revenue", 0)
     total_profit = summary.get("total_profit", 0)
+    total_opex = summary.get("opex_term", 0)
+    net_cash = total_rev - total_opex
 
     rev_records = []
     for product in ["hydrogen", "graphene"]:
@@ -574,7 +583,8 @@ def build_revenue_card(df_prod, df_demand, df_ship2, summary, h2_p, graph_p, gra
 
     revenue_html = html.Div([
         html.Div([
-            html.H6(f"Total Revenue: {format_currency_compact(total_rev)} / yr", className="fw-bold text-success mb-2"),
+            html.H6(f"Net Annual Cashflow: {format_currency_compact(net_cash)} / yr", className="fw-bold text-success mb-2"),
+            html.H6(f"Annual Revenue: {format_currency_compact(total_rev)} / yr", className="fw-bold text-info mb-2"),
             html.H6(f"First Year Net Profit: {format_currency_compact(total_profit)}", className="fw-bold text-primary mb-2"),
         ], className="border-bottom pb-2 mb-2"),
         dict_to_html("Revenue Breakdown", cost_data["revenue"], is_currency=True)
@@ -615,9 +625,9 @@ def build_expense_card(df_prod, df_demand, df_ship2, summary, h2_p, graph_p, gra
 
     expense_html = html.Div([
         html.Div([
-            html.H6(f"Total CapEx: {format_currency_compact(total_cap)}", className="fw-bold text-danger mb-1"),
-            html.H6(f"Total OpEx: {format_currency_compact(total_op)} / yr", className="fw-bold text-warning mb-2"),
-            html.H6(f"Unit OpEx: ${unit_opex:,.2f} / kg", className="fw-bold text-info mb-2"),
+            html.H6(f"Inital CapEx: {format_currency_compact(total_cap)}", className="fw-bold text-danger mb-1"),
+            html.H6(f"Annual OpEx: {format_currency_compact(total_op)} / yr", className="fw-bold text-info mb-2"),
+            html.H6(f"Unit OpEx: ${unit_opex:,.2f} / kg", className="fw-bold text-primary mb-2"),
         ], className="border-bottom pb-2 mb-2"),
         dict_to_html("Capital Cost Breakdown", cost_data["capital_cost"], is_currency=True),
         dict_to_html("Operating Cost Breakdown", cost_data["operating_cost"], is_currency=True)

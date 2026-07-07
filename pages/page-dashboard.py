@@ -47,20 +47,20 @@ hydrogenDemand = dbc.Card(
             ),
             
             html.Label("Initial Truck Fleet Conversion (%)", className="fw-semibold small"),
-            dcc.Slider(0, 100, 0.1, value=2, id="slider-fleetconv", className="mb-2"),
+            dcc.Slider(0, 100, 0.1, value=3.5, marks=None, tooltip={"placement": "bottom", "always_visible": True}, id="slider-fleetconv", className="mb-2"),
 
             html.Label("Annual Truck Conversion (%)", className="fw-semibold small"),
-            dcc.Slider(0, 100, 0.1, value=1.0, id="k_techpen", className="mb-2"),
+            dcc.Slider(0, 100, 0.1, value=1.0, marks=None, tooltip={"placement": "bottom", "always_visible": True}, id="k_techpen", className="mb-2"),
             
             html.Label("Distribution Centers (H2 Forklifts) Conversion (%)", className="fw-semibold small mt-2"),
             html.Div("Amazon (%)", className="text-muted small ms-1"),
-            dcc.Slider(0, 100, 0.1, value=5, id="slider-distcenter-az", className="mb-2"),
+            dcc.Slider(0, 100, 0.1, marks=None, tooltip={"placement": "bottom", "always_visible": True}, value=0, id="slider-distcenter-az", className="mb-2"),
             
             html.Div("Walmart (%)", className="text-muted small ms-1"),
-            dcc.Slider(0, 100, 0.1, value=5, id="slider-distcenter-wm", className="mb-2"),
+            dcc.Slider(0, 100, 0.1, marks=None, tooltip={"placement": "bottom", "always_visible": True}, value=0, id="slider-distcenter-wm", className="mb-2"),
             
             html.Div("Warehouse (%)", className="text-muted small ms-1"),
-            dcc.Slider(0, 100, 0.1, value=5, id="slider-distcenter-hd"),
+            dcc.Slider(0, 100, 0.1, marks=None, tooltip={"placement": "bottom", "always_visible": True}, value=0, id="slider-distcenter-hd"),
         ]),
     ],
 )
@@ -75,7 +75,7 @@ prodOptions = dbc.Card(
                    className="text-muted small mb-3"),
 
             html.Label("Production Capacity Oversize Index (%)", className="text-muted small mb-2"),
-            dcc.Slider(0, 200, 1, value=0, id="slider-oversize", className="mb-2"),
+            dcc.Slider(0, 200, 1, value=0, marks=None, tooltip={"placement": "bottom", "always_visible": True}, id="slider-oversize", className="mb-2"),
 
             html.Label("Allowed Facility Types:", className="text-muted small mb-2"),
             dbc.Checklist(
@@ -86,13 +86,13 @@ prodOptions = dbc.Card(
                     {"label": "Add Planned Savannah Facility", "value": "savannah"},
                     {"label": "Add Hydrofleet Infrastructure", "value": "hydrofleet"}
                 ],
-                value=["landfill with bcs"],
+                value=["landfill with bcs", "plug", "savannah"],
                 id="checklist-prodoptions",
                 switch=True,
                 className="d-flex flex-column gap-2"
             ),
             html.Label("Maximum Hydrofleet Facilities", className="fw-semibold small mt-3"),
-            dcc.Slider(1, 10, 1, value=5, id="slider-max-hydrofleet", className="mb-2"),
+            dcc.Slider(1, 10, 1, value=2, marks=None, tooltip={"placement": "bottom", "always_visible": True}, id="slider-max-hydrofleet", className="mb-2"),
         ]),
     ],
 )
@@ -114,10 +114,10 @@ tradeOff = dbc.Card(
                    className="text-muted small mb-3"),
             
             html.Label("Minimize Transportation Costs", className="fw-semibold small"),
-            dcc.Slider(0, 1, 0.01, value=0.0, id="k_transport", className="mb-2"),
+            dcc.Slider(0, 1, 0.01, value=0.0, marks=None, tooltip={"placement": "bottom", "always_visible": True}, id="k_transport", className="mb-2"),
             
             html.Label("Minimize Water Usage", className="fw-semibold small"),
-            dcc.Slider(0, 1, 0.01, value=0.0, id="k_water", className="mb-2"),
+            dcc.Slider(0, 1, 0.01, value=0.0, marks=None, tooltip={"placement": "bottom", "always_visible": True}, id="k_water", className="mb-2"),
             
             html.Label("Route(s) of Interest", className="fw-semibold small mt-2"),
             dcc.Dropdown(
@@ -149,14 +149,14 @@ econOptions = dbc.Card(
             html.Label("Graphene Market Price (per kg)", className="fw-semibold small"),
             dbc.InputGroup([
                 dbc.InputGroupText("$"),
-                dbc.Input(id="graphene_sales", type="number", value=2500.00, step=0.01),
+                dbc.Input(id="graphene_sales", type="number", value=1500.00, step=0.01),
             ], className="mb-4 shadow-sm"),
             
             html.Label("Graphene Sold (%)", className="fw-semibold small"),
-            dcc.Slider(0, 100, 0.1, value=20, id="graphene_percent"),
+            dcc.Slider(0, 100, 0.1, value=1, marks=None, tooltip={"placement": "bottom", "always_visible": True}, id="graphene_percent", className="mb-2"),
 
             html.Label("Years-to-Forecast", className="fw-semibold small mt-2"),
-            dcc.Slider(5, 30, 5, value=15, id="slider-forecast-years", className="mb-2"),
+            dcc.Slider(5, 30, 5, value=15, marks=None, tooltip={"placement": "bottom", "always_visible": True}, id="slider-forecast-years", className="mb-2"),
         ]),
     ],
 )
@@ -399,7 +399,7 @@ supplyDemandCard = dbc.Card(
             html.P("Comparison of total daily hydrogen production capacity against localized fleet demand.", 
                    className="text-muted small mb-3"),
             
-            dcc.Graph(id="supply-demand-chart", style={"height": ""}), 
+            dcc.Graph(id="supply-demand-chart", style={"height": "30vh"}), 
             html.Div(id="supply-demand-content", className="mt-3", children=[
                 html.P("Run optimization to view data.", className="text-muted")
             ]),
@@ -457,6 +457,8 @@ revenueCard = dbc.Card(
         dbc.CardBody([
             html.H5([html.I(className="fa-solid fa-coins me-2 text-primary"), "Revenue Generation"], 
                     className="card-title border-bottom pb-2 mb-2 fw-bold"),
+            html.P("Breakdown of projected income streams, including hydrogen fuel sales and secondary market byproducts like graphene, over the operational lifecycle.", 
+                   className="text-muted small mb-2"),
             dcc.Graph(id="revenue-chart", style={"height": "30vh"}),
             html.Div(id="revenue-content", className="mt-2", children=[
                 html.P("Run optimization to view revenue.", className="text-muted")
@@ -471,6 +473,8 @@ expenseCard = dbc.Card(
         dbc.CardBody([
             html.H5([html.I(className="fa-solid fa-money-bill-transfer me-2 text-primary"), "System Expenses"], 
                     className="card-title border-bottom pb-2 mb-2 fw-bold"),
+            html.P("Detailed distribution of capital expenditures (CapEx) for facility construction and ongoing operational expenses (OpEx), including transport and utility costs.", 
+                   className="text-muted small mb-2"),
             dcc.Graph(id="expense-chart", style={"height": "30vh"}),
             html.Div(id="expense-content", className="mt-2", children=[
                 html.P("Run optimization to view expenses.", className="text-muted")
@@ -537,6 +541,8 @@ tabsCard = dbc.Card(
         dbc.CardBody([
             html.H5([html.I(className="fa-solid fa-map-location-dot me-2 text-primary"), "Optimization Results"], 
                     className="card-title border-bottom pb-2 mb-3 fw-bold"),
+            html.P("Geospatial visualization of the solved hydrogen supply chain, highlighting active production nodes, distribution routes, and fulfilled demand centers.",
+                   className="text-muted small mb-2"),
             dbc.Tabs([
                 dbc.Tab(mapTab, label="Optimization Map", tab_id="tab-map", className="pt-3"),
                 dbc.Tab(hf.build_grid_tab(grid_prod, "prod", "Production Sites"), label="Production Sites", className="pt-3"),
@@ -704,10 +710,18 @@ def generate_dashboard_results(n, demand_sheet, fleetconv, dist_az, dist_wm, dis
     
     ## Handle Model Success
     print("Optimization successful, updating UI.")
+
+    # Remove inactive hydrofleet rows from post-solve output so they do not appear on the map.
+    # Keep other technologies unchanged, even if they have zero production.
+    hydrofleet_mask = df_prod["Type"].astype(str).str.strip().str.lower().eq("hydrofleet")
+    hydrofleet_zero_mask = pd.to_numeric(
+        df_prod["H2 Production Capacity (kg/day)"], errors="coerce"
+    ).fillna(0.0) <= 1e-6
+    df_prod_map = df_prod.loc[~(hydrofleet_mask & hydrofleet_zero_mask)].copy()
         
     ## Tables
     # Filter production sites with capacity > 0
-    df_prod_filtered = df_prod[df_prod["H2 Production Capacity (kg/day)"] > 0]
+    df_prod_filtered = df_prod_map[df_prod_map["H2 Production Capacity (kg/day)"] > 0]
     prod_data, prod_cols = hf.df_to_ag_grid(df_prod_filtered)
     demand_data, demand_cols = hf.df_to_ag_grid(df_demand)
     ship_data, ship_cols = hf.df_to_ag_grid(df_ship2)
@@ -738,14 +752,14 @@ def generate_dashboard_results(n, demand_sheet, fleetconv, dist_az, dist_wm, dis
     # ---------------------------------------------------------------------------
 
     results_payload = {
-        "prod": df_prod.to_dict('records'),
+        "prod": df_prod_map.to_dict('records'),
         "demand": df_demand.to_dict('records'),
         "ship": df_ship2.to_dict('records'),
         "summary": summary
     }
 
     return [
-        hf.generate_map(df_prod, df_demand, df_ship2, render_token=f"run-{n}"),
+        hf.generate_map(df_prod_map, df_demand, df_ship2, render_token=f"run-{n}"),
         "",
         {"display": "none"},
         prod_data, prod_cols, demand_data, demand_cols, ship_data, ship_cols,

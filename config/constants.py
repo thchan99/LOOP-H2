@@ -28,7 +28,7 @@ PRICE_ELECTRICITY_PER_KWH_DEFAULT = 0.1     # $ per kWh
 CAPACITY_FACTOR_DEFAULT = 0.9               # fraction (0-1)
 DAYS_PER_YEAR = 365.25                       # days/year
 TRANSPORT_COST_PER_KG_KM_DEFAULT = 0.02  # $ per kg
-TRANSPORT_BOOST = 75.0                      # unitless objective scaling factor (calibrated from baseline objective magnitudes)
+TRANSPORT_BOOST = 120.0                      # unitless objective scaling factor (calibrated from baseline objective magnitudes)
 WATER_BOOST = 10.0                          # unitless objective scaling factor
 
 
@@ -57,7 +57,7 @@ BCS_ELECTRICITY_RATE_KWH_PER_FT3 = 0.002    # kWh per ft^3 of LFG
 # Levidian / conversion empirical defaults
 INPUT_FLOW_M3_PER_HR = 10.0     # m3/hr (feedstock input for Levidian empirical data)
 OUTPUT_FLOW_KG_PER_HR = 2.0     # kg/hr H2 (empirical output)
-GRAPHENE_PROP_DEFAULT = 1.0     # Graphene (kh/hr) produced per kg/hr H2.
+GRAPHENE_PROP_DEFAULT = 0.6666666     # Graphene (kh/hr) produced per kg/hr H2. (2/3)
 LEV_H2_PROD_RATE_PER_HR_DEFAULT = 2             # kg/hr H2 per Levidian unit (default)
 LEV_ELECTRICITY_RATE_KWH_PER_HR_DEFAULT = 90    # kWh/hr per unit (default)
 LEVIDIAN_PURCHASE_COST = 5000000                # $ per machine (purchase+installation)
@@ -65,7 +65,7 @@ LEVIDIAN_LEASE_COST_PER_MONTH = 10000           # $ per month per machine
 
 # Hydrofleet equipment & cost defaults
 HYDROFLEET_H2_PROD_CAPACITY_KG_DAY = 120000  # kg/day (max production capacity per unit)
-HYDROFLEET_CAPITAL_COST_PROP = 27500        # $ per (kg/day) proportional capital cost
+HYDROFLEET_CAPITAL_COST_PROP = 55000        # $ per (kg/day) proportional capital cost (27500*2)
 HYDROFLEET_CAPITAL_COST_CONST = 275000000   # $ fixed capital cost
 HYDROFLEET_OPEX_COST_PROP = 0.0             # $ per (kg/day) proportional operating cost
 HYDROFLEET_OPEX_COST_CONST = 0.0            # $ fixed operating cost per year
