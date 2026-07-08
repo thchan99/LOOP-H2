@@ -90,8 +90,8 @@ layout = dbc.Container([
     ]),
     
     dbc.Row([
-        dbc.Col(project_abstract, xs=12, lg=8, className="mb-4"),
-        dbc.Col(resource_links, xs=12, lg=4, className="mb-4"),
+        dbc.Col(project_abstract, xs=12, lg=12, className="mb-4"),
+        #dbc.Col(resource_links, xs=12, lg=4, className="mb-4"),
     ]),
     
     dbc.Row([
