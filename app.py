@@ -20,6 +20,7 @@ app = Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1.0"}],
     external_stylesheets = external_stylesheets,
 )
+server = app.server
 
 app.title = "LOOP H2"
 app.description = "An interactive dashboard for decision-making tools on Hydrogen Transportation Infrastructure for the State of Georgia."
