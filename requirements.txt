@@ -23,6 +23,7 @@ flask==3.1.2
 flask-caching==2.3.1
 flask-compress==1.23
 geobuf==2.0.1
+gunicorn==20.1.0
 idna==3.11
 importlib-metadata==8.7.0
 itsdangerous==2.2.0
